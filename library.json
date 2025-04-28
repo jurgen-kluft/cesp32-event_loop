@@ -1,0 +1,23 @@
+{
+  "name": "cesp32-event_loop",
+  "keywords": "ESP32, eventloop, async",
+  "description": "Asynchronous programming library for the Arduino Framework",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/jurgen-kluft/cesp32-event_loop.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Jurgen Kluft",
+      "email": "jurgen.kluft@gmail.com",
+      "url": "https://github.com/jurgen-kluft/",
+      "maintainer": true
+    }
+  ],
+  "dependencies": [],
+  "version": "1.0.0",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
