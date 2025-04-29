@@ -33,7 +33,7 @@ void loop() {
 Using this library, the sketch can be rewritten to the following:
 
 ```cpp
-#include <esp32-event_loop.h>
+#include <event_loop.h>
 
 using namespace cesp32;
 
@@ -144,7 +144,7 @@ void loop()
 This solves the problem, but it's quite verbose. Using this library, we can write the same script like this:
 
 ```c++
-#include <cesp32-event_loop.h>
+#include <event_loop.h>
 
 using namespace cesp32;
 

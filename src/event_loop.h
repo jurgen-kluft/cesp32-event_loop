@@ -30,17 +30,19 @@ namespace cesp32
     class event_loop_t
     {
     public:
-        event_loop_t(int timed_queue_cap = 10,
-                     int untimed_list_cap = 10,
-                     int isr_event_list_cap = 10);
+        event_loop_t();
+        
+        void setup(int timed_queue_cap = 16,
+                     int untimed_list_cap = 16,
+                     int isr_event_list_cap = 8);
 
         // Disabling copy constructors
         event_loop_t(const event_loop_t &) = delete;
         event_loop_t(event_loop_t &&) = delete;
 
         int getTimedEventQueueSize() const { return m_timed_events_active_count; }
-        int getUntimedEventQueueSize() const { return m_untimed_events_size; }
-        int getISREventQueueSize() const { return m_isr_events_count; }
+        int getUntimedEventQueueSize() const { return m_untimed_events_active_count; }
+        int getISREventQueueSize() const { return m_isr_events_active_count; }
         int getEventQueueSize() const
         {
             return getTimedEventQueueSize() + getUntimedEventQueueSize() +
@@ -173,12 +175,12 @@ namespace cesp32
 
         // Untimed events are stored in a C array, which is traversed in order.
         untimed_event_t *m_untimed_events_array;
-        int m_untimed_events_size;
+        int m_untimed_events_active_count;
         int m_untimed_events_cap;
 
         // ISR events
         isr_event_t *m_isr_events_array;
-        int m_isr_events_count;
+        int m_isr_events_active_count;
         int m_isr_events_cap;
 
         // Semaphores for accessing the above queues and lists
@@ -186,14 +188,14 @@ namespace cesp32
         SemaphoreHandle_t m_untimed_mutex_;
         SemaphoreHandle_t m_isr_mutex_;
 
-        uint64_t m_timed_counter = 0;
-        uint64_t m_untimed_counter = 0;
-        uint64_t m_tick_counter = 0;
+        uint64_t m_timed_counter;
+        uint64_t m_untimed_counter;
+        uint64_t m_tick_counter;
 
         void tickTimed();
         void tickUntimed();
     };
 
-} // namespace reactesp
+} // namespace 
 
 #endif // CESP32_EVENT_LOOP_H_
