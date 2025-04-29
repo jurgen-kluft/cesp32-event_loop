@@ -4,7 +4,7 @@
 using namespace cesp32;
 
 #define LED_PIN LED_BUILTIN
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 #define PRINTLN_DEBUG(msg) Serial.println(msg)
@@ -17,14 +17,17 @@ volatile int64_t event_counter = 0;
 
 event_loop_t event_loop;
 
-#pragma GCC optimize "Og"
 void quick() {
     led_state = 1 - led_state;
+    digitalWrite(LED_PIN, led_state == 0 ? LOW : HIGH);
+    PRINTLN_DEBUG(led_state == 0 ? "Off" : "On");
     event_counter += 1;
 }
 
 void slow() {
     led_state = 1 - led_state;
+    digitalWrite(LED_PIN, led_state == 0 ? LOW : HIGH);
+    PRINTLN_DEBUG(led_state == 0 ? "Off" : "On");
     event_counter += 1;
 }
 
@@ -44,19 +47,5 @@ void setup() {
 volatile bool led_high = false;
 void loop() {
     event_loop.tick();
-
-    if (led_state == 1) {
-        if (!led_high) {
-            led_high = true;
-            digitalWrite(LED_PIN, HIGH);
-            PRINTLN_DEBUG("On");
-        }
-    } else if (led_state == 0) {
-        if (led_high) {
-            led_high = false;
-            digitalWrite(LED_PIN, HIGH);
-            PRINTLN_DEBUG("Off");
-        }
-    }
     delay(1);
 }

@@ -13,7 +13,8 @@ using namespace cesp32;
 int tick_counter = 0;
 int timer_ticks[NUM_TIMERS];
 
-event_loop_t event_loop(32,32,32);
+event_loop_t event_loop;
+event_handle_t ire2;
 
 void reporter() {
     Serial.printf("Timer ticks: ");
@@ -22,7 +23,7 @@ void reporter() {
         timer_ticks[i] = 0;
     }
     Serial.printf("\n");
-    Serial.printf("Free mem: %d\n", system_get_free_heap_size());
+    Serial.printf("Free mem: %d\n", ESP.getFreeHeap());
     Serial.printf("Ticks per second: %d\n", tick_counter);
     tick_counter = 0;
 }
@@ -42,11 +43,11 @@ void setup_timers(event_loop_t &event_loop) {
 }
 
 void setup_io_pins(event_loop_t &event_loop) {
-    static ISREvent *ire2 = nullptr;
     static int out_pin_state = 0;
 
     // change OUT_PIN state every 900 ms
     pinMode(OUT_PIN, OUTPUT);
+
     event_loop.onRepeat(900, []() {
         out_pin_state = !out_pin_state;
         digitalWrite(OUT_PIN, out_pin_state);
@@ -61,12 +62,12 @@ void setup_io_pins(event_loop_t &event_loop) {
 
     // every 9s, toggle reporting PIN2 falling edge
     event_loop.onRepeat(9000, [&event_loop, &reporter]() {
-        if (ire2 == nullptr) {
+        if (!ire2.isValid()) {
             ire2 = event_loop.onInterrupt(INPUT_PIN2, FALLING,
                                           std::bind(reporter, INPUT_PIN2));
         } else {
-            ire2->remove();
-            ire2 = nullptr;
+            event_loop.remove(ire2);
+            ire2 = event_handle_t();
         }
     });
 }
@@ -74,7 +75,7 @@ void setup_io_pins(event_loop_t &event_loop) {
 void setup_serial(event_loop_t &event_loop) {
     // if something is received on the serial port, turn the led off for one
     // second
-    event_loop.onAvailable(Serial, [&event_loop]() {
+    event_loop.onAvailable(&Serial, [&event_loop]() {
         static int event_counter = 0;
 
         Serial.write(Serial.read());
@@ -101,6 +102,8 @@ void setup() {
     Serial.begin(115200);
     Serial.println("Starting");
     pinMode(LED_PIN, OUTPUT);
+
+    event_loop.setup(32, 32, 32);
 
     setup_timers(event_loop);
     setup_io_pins(event_loop);

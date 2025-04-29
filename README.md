@@ -22,7 +22,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
-void loop() {
+void loop() { 
   digitalWrite(LED_BUILTIN, HIGH);
   delay(1000);
   digitalWrite(LED_BUILTIN, LOW);
@@ -39,9 +39,11 @@ using namespace cesp32;
 
 event_loop_t event_loop;
 
-setup()
+void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
+
+  event_loop.setup();
 
   event_loop.onRepeat(1000, [] () {
       static bool state = false;
@@ -152,20 +154,21 @@ event_loop_t event_loop;
 
 void setup()
 {
-  Serial.begin(9600);
-  pinMode(LED_BUILTIN, OUTPUT);
+    Serial.begin(9600);
+    pinMode(LED_BUILTIN, OUTPUT);
 
-  event_loop.onAvailable(&Serial, [] () {
-    Serial.write(Serial.read());
-    digitalWrite(LED_BUILTIN, HIGH);
+    event_loop.setup();
 
-    event_loop.onDelay(1000, [] () { digitalWrite(LED_BUILTIN, LOW); });
-  });
+    event_loop.onAvailable(&Serial, [] () {
+        Serial.write(Serial.read());
+        digitalWrite(LED_BUILTIN, HIGH);
+        event_loop.onDelay(1000, [] () { digitalWrite(LED_BUILTIN, LOW); });
+    });
 }
 
 void loop()
 {
-  event_loop.tick();
+    event_loop.tick();
 }
 ```
 
